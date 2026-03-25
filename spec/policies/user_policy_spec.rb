@@ -1,0 +1,121 @@
+require "rails_helper"
+
+RSpec.describe UserPolicy, type: :policy do
+  let(:skill_block_org) { create(:skill_block_organization) }
+  let(:other_org) { create(:organization) }
+
+  let(:super_admin) { create(:super_admin_user, organization: skill_block_org) }
+  let(:admin) { create(:admin_user, organization: other_org) }
+  let(:manager) { create(:manager_user, organization: other_org) }
+  let(:employee) { create(:user, organization: other_org) }
+  let(:other_org_user) { create(:user, organization: create(:organization)) }
+
+  subject { described_class }
+
+  permissions :index? do
+    it "grants access to super_admin" do
+      expect(subject).to permit(super_admin, employee)
+    end
+
+    it "grants access to admin" do
+      expect(subject).to permit(admin, employee)
+    end
+
+    it "denies access to manager" do
+      expect(subject).not_to permit(manager, employee)
+    end
+
+    it "denies access to employee" do
+      expect(subject).not_to permit(employee, employee)
+    end
+  end
+
+  permissions :show? do
+    it "grants access to super_admin for any user" do
+      expect(subject).to permit(super_admin, other_org_user)
+    end
+
+    it "grants access to a user viewing someone in the same org" do
+      expect(subject).to permit(admin, employee)
+    end
+
+    it "grants access to a user viewing themselves" do
+      expect(subject).to permit(employee, employee)
+    end
+
+    it "denies access to a user viewing someone in a different org" do
+      expect(subject).not_to permit(employee, other_org_user)
+    end
+  end
+
+  permissions :create? do
+    it "grants access to super_admin" do
+      expect(subject).to permit(super_admin, employee)
+    end
+
+    it "grants access to admin" do
+      expect(subject).to permit(admin, employee)
+    end
+
+    it "denies access to manager" do
+      expect(subject).not_to permit(manager, employee)
+    end
+  end
+
+  permissions :update? do
+    it "grants access to super_admin for any user" do
+      expect(subject).to permit(super_admin, other_org_user)
+    end
+
+    it "grants access to admin for users in their org" do
+      expect(subject).to permit(admin, employee)
+    end
+
+    it "grants access to a user updating themselves" do
+      expect(subject).to permit(employee, employee)
+    end
+
+    it "denies access to admin for users in a different org" do
+      expect(subject).not_to permit(admin, other_org_user)
+    end
+  end
+
+  permissions :destroy? do
+    it "grants access to super_admin for any user" do
+      expect(subject).to permit(super_admin, employee)
+    end
+
+    it "grants access to admin for other users in their org" do
+      expect(subject).to permit(admin, employee)
+    end
+
+    it "denies admin from deleting themselves" do
+      expect(subject).not_to permit(admin, admin)
+    end
+
+    it "denies access to admin for users in a different org" do
+      expect(subject).not_to permit(admin, other_org_user)
+    end
+
+    it "denies access to employee" do
+      expect(subject).not_to permit(employee, manager)
+    end
+  end
+
+  describe UserPolicy::Scope do
+    it "returns all users for super_admin" do
+      employee
+      other_org_user
+      scope = described_class.new(super_admin, User).resolve
+      expect(scope).to include(employee, other_org_user)
+    end
+
+    it "returns only users in the same org for non-super_admin" do
+      employee
+      other_org_user
+      scope = described_class.new(admin, User).resolve
+      expect(scope).to include(employee)
+      expect(scope).not_to include(other_org_user)
+    end
+  end
+end

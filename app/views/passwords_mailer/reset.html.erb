@@ -1,0 +1,10 @@
+<p>Hi <%= @user.first_name %>,</p>
+
+<p>
+  You can reset your password using
+  <%= link_to "this password reset link", "#{ENV.fetch("CLIENT_URL", "http://localhost:8080")}/reset-password?token=#{@reset_token}" %>.
+</p>
+
+<p>This link will expire in 15 minutes.</p>
+
+<p>If you didn't request a password reset, you can ignore this email.</p>

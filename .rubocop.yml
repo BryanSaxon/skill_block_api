@@ -1,0 +1,2 @@
+# Linting is handled by StandardRB. Run: bin/standardrb
+# StandardRB manages its own RuboCop configuration internally.
