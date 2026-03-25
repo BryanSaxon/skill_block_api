@@ -6,7 +6,7 @@ FactoryBot.define do
     last_name { "Doe" }
     password { "password" }
     password_confirmation { "password" }
-    role { :employee }
+    role { :operator }
 
     factory :admin_user do
       role { :admin }

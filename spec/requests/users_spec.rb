@@ -7,14 +7,14 @@ RSpec.describe "Users", type: :request do
 
   let(:super_admin) { create(:super_admin_user, organization: skill_block_org) }
   let(:admin) { create(:admin_user, organization: other_org) }
-  let(:employee) { create(:user, organization: other_org) }
+  let(:operator) { create(:user, organization: other_org) }
   let(:other_org_user) { create(:user, organization: third_org) }
 
   describe "GET /users" do
     before {
       super_admin
       admin
-      employee
+      operator
       other_org_user
     }
 
@@ -33,40 +33,40 @@ RSpec.describe "Users", type: :request do
       get "/users", headers: auth_headers_for(admin)
       expect(response).to have_http_status(:ok)
       ids = json[:data].map { |u| u[:id] }
-      expect(ids).to include(admin.id.to_s, employee.id.to_s)
+      expect(ids).to include(admin.id.to_s, operator.id.to_s)
       expect(ids).not_to include(other_org_user.id.to_s)
     end
 
-    it "returns 403 for employee" do
-      get "/users", headers: auth_headers_for(employee)
+    it "returns 403 for operator" do
+      get "/users", headers: auth_headers_for(operator)
       expect(response).to have_http_status(:forbidden)
     end
   end
 
   describe "GET /users/:id" do
     it "returns 401 without a token" do
-      get "/users/#{employee.id}"
+      get "/users/#{operator.id}"
       expect(response).to have_http_status(:unauthorized)
     end
 
     it "allows a user to view themselves" do
-      get "/users/#{employee.id}", headers: auth_headers_for(employee)
+      get "/users/#{operator.id}", headers: auth_headers_for(operator)
       expect(response).to have_http_status(:ok)
-      expect(json[:data][:attributes][:email]).to eq(employee.email)
+      expect(json[:data][:attributes][:email]).to eq(operator.email)
     end
 
     it "allows admin to view a user in their org" do
-      get "/users/#{employee.id}", headers: auth_headers_for(admin)
+      get "/users/#{operator.id}", headers: auth_headers_for(admin)
       expect(response).to have_http_status(:ok)
     end
 
     it "returns 403 when viewing a user in a different org" do
-      get "/users/#{other_org_user.id}", headers: auth_headers_for(employee)
+      get "/users/#{other_org_user.id}", headers: auth_headers_for(operator)
       expect(response).to have_http_status(:forbidden)
     end
 
     it "does not expose password_digest" do
-      get "/users/#{employee.id}", headers: auth_headers_for(employee)
+      get "/users/#{operator.id}", headers: auth_headers_for(operator)
       expect(json[:data][:attributes].keys).not_to include(:password_digest)
     end
 
@@ -104,8 +104,8 @@ RSpec.describe "Users", type: :request do
       expect(response).to have_http_status(:created)
     end
 
-    it "returns 403 for employee" do
-      post "/users", params: valid_params, headers: auth_headers_for(employee)
+    it "returns 403 for operator" do
+      post "/users", params: valid_params, headers: auth_headers_for(operator)
       expect(response).to have_http_status(:forbidden)
     end
 
@@ -123,18 +123,18 @@ RSpec.describe "Users", type: :request do
 
   describe "PATCH /users/:id" do
     it "returns 401 without a token" do
-      patch "/users/#{employee.id}", params: {first_name: "Updated"}
+      patch "/users/#{operator.id}", params: {first_name: "Updated"}
       expect(response).to have_http_status(:unauthorized)
     end
 
     it "allows a user to update themselves" do
-      patch "/users/#{employee.id}", params: {first_name: "Updated"}, headers: auth_headers_for(employee)
+      patch "/users/#{operator.id}", params: {first_name: "Updated"}, headers: auth_headers_for(operator)
       expect(response).to have_http_status(:ok)
       expect(json[:data][:attributes][:first_name]).to eq("Updated")
     end
 
     it "allows admin to update a user in their org" do
-      patch "/users/#{employee.id}", params: {first_name: "Updated"}, headers: auth_headers_for(admin)
+      patch "/users/#{operator.id}", params: {first_name: "Updated"}, headers: auth_headers_for(admin)
       expect(response).to have_http_status(:ok)
     end
 
@@ -144,21 +144,21 @@ RSpec.describe "Users", type: :request do
     end
 
     it "returns 422 with invalid params" do
-      patch "/users/#{employee.id}", params: {email: "invalid"}, headers: auth_headers_for(admin)
+      patch "/users/#{operator.id}", params: {email: "invalid"}, headers: auth_headers_for(admin)
       expect(response).to have_http_status(:unprocessable_content)
     end
   end
 
   describe "DELETE /users/:id" do
     it "returns 401 without a token" do
-      delete "/users/#{employee.id}"
+      delete "/users/#{operator.id}"
       expect(response).to have_http_status(:unauthorized)
     end
 
     it "allows admin to delete a user in their org" do
-      delete "/users/#{employee.id}", headers: auth_headers_for(admin)
+      delete "/users/#{operator.id}", headers: auth_headers_for(admin)
       expect(response).to have_http_status(:no_content)
-      expect(User.exists?(employee.id)).to be false
+      expect(User.exists?(operator.id)).to be false
     end
 
     it "returns 403 when admin tries to delete themselves" do

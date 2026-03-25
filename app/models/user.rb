@@ -5,7 +5,7 @@ class User < ApplicationRecord
   belongs_to :organization
   has_one_attached :avatar
 
-  enum :role, {super_admin: 0, admin: 1, manager: 2, employee: 3}, validate: true
+  enum :role, {super_admin: 0, admin: 1, manager: 2, operator: 3}, validate: true
 
   normalizes :email, with: ->(e) { e.strip.downcase }
 

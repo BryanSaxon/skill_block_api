@@ -7,7 +7,7 @@ RSpec.describe OrganizationPolicy, type: :policy do
   let(:super_admin) { create(:super_admin_user, organization: skill_block_org) }
   let(:admin) { create(:admin_user, organization: other_org) }
   let(:manager) { create(:manager_user, organization: other_org) }
-  let(:employee) { create(:user, organization: other_org) }
+  let(:operator) { create(:user, organization: other_org) }
 
   subject { described_class }
 
@@ -24,8 +24,8 @@ RSpec.describe OrganizationPolicy, type: :policy do
       expect(subject).to permit(manager, other_org)
     end
 
-    it "grants access to employee" do
-      expect(subject).to permit(employee, other_org)
+    it "grants access to operator" do
+      expect(subject).to permit(operator, other_org)
     end
   end
 

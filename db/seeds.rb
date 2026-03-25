@@ -38,12 +38,12 @@ User.find_or_create_by!(email: "manager@samplemanufacturer.com") do |u|
   u.organization = manufacturer
 end
 
-User.find_or_create_by!(email: "employee@samplemanufacturer.com") do |u|
-  u.first_name = "Employee"
+User.find_or_create_by!(email: "operator@samplemanufacturer.com") do |u|
+  u.first_name = "Operator"
   u.last_name = "User"
   u.password = "password"
   u.password_confirmation = "password"
-  u.role = :employee
+  u.role = :operator
   u.organization = manufacturer
 end
 

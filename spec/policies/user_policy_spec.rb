@@ -7,26 +7,26 @@ RSpec.describe UserPolicy, type: :policy do
   let(:super_admin) { create(:super_admin_user, organization: skill_block_org) }
   let(:admin) { create(:admin_user, organization: other_org) }
   let(:manager) { create(:manager_user, organization: other_org) }
-  let(:employee) { create(:user, organization: other_org) }
+  let(:operator) { create(:user, organization: other_org) }
   let(:other_org_user) { create(:user, organization: create(:organization)) }
 
   subject { described_class }
 
   permissions :index? do
     it "grants access to super_admin" do
-      expect(subject).to permit(super_admin, employee)
+      expect(subject).to permit(super_admin, operator)
     end
 
     it "grants access to admin" do
-      expect(subject).to permit(admin, employee)
+      expect(subject).to permit(admin, operator)
     end
 
     it "denies access to manager" do
-      expect(subject).not_to permit(manager, employee)
+      expect(subject).not_to permit(manager, operator)
     end
 
-    it "denies access to employee" do
-      expect(subject).not_to permit(employee, employee)
+    it "denies access to operator" do
+      expect(subject).not_to permit(operator, operator)
     end
   end
 
@@ -36,29 +36,29 @@ RSpec.describe UserPolicy, type: :policy do
     end
 
     it "grants access to a user viewing someone in the same org" do
-      expect(subject).to permit(admin, employee)
+      expect(subject).to permit(admin, operator)
     end
 
     it "grants access to a user viewing themselves" do
-      expect(subject).to permit(employee, employee)
+      expect(subject).to permit(operator, operator)
     end
 
     it "denies access to a user viewing someone in a different org" do
-      expect(subject).not_to permit(employee, other_org_user)
+      expect(subject).not_to permit(operator, other_org_user)
     end
   end
 
   permissions :create? do
     it "grants access to super_admin" do
-      expect(subject).to permit(super_admin, employee)
+      expect(subject).to permit(super_admin, operator)
     end
 
     it "grants access to admin" do
-      expect(subject).to permit(admin, employee)
+      expect(subject).to permit(admin, operator)
     end
 
     it "denies access to manager" do
-      expect(subject).not_to permit(manager, employee)
+      expect(subject).not_to permit(manager, operator)
     end
   end
 
@@ -68,11 +68,11 @@ RSpec.describe UserPolicy, type: :policy do
     end
 
     it "grants access to admin for users in their org" do
-      expect(subject).to permit(admin, employee)
+      expect(subject).to permit(admin, operator)
     end
 
     it "grants access to a user updating themselves" do
-      expect(subject).to permit(employee, employee)
+      expect(subject).to permit(operator, operator)
     end
 
     it "denies access to admin for users in a different org" do
@@ -82,11 +82,11 @@ RSpec.describe UserPolicy, type: :policy do
 
   permissions :destroy? do
     it "grants access to super_admin for any user" do
-      expect(subject).to permit(super_admin, employee)
+      expect(subject).to permit(super_admin, operator)
     end
 
     it "grants access to admin for other users in their org" do
-      expect(subject).to permit(admin, employee)
+      expect(subject).to permit(admin, operator)
     end
 
     it "denies admin from deleting themselves" do
@@ -97,24 +97,24 @@ RSpec.describe UserPolicy, type: :policy do
       expect(subject).not_to permit(admin, other_org_user)
     end
 
-    it "denies access to employee" do
-      expect(subject).not_to permit(employee, manager)
+    it "denies access to operator" do
+      expect(subject).not_to permit(operator, manager)
     end
   end
 
   describe UserPolicy::Scope do
     it "returns all users for super_admin" do
-      employee
+      operator
       other_org_user
       scope = described_class.new(super_admin, User).resolve
-      expect(scope).to include(employee, other_org_user)
+      expect(scope).to include(operator, other_org_user)
     end
 
     it "returns only users in the same org for non-super_admin" do
-      employee
+      operator
       other_org_user
       scope = described_class.new(admin, User).resolve
-      expect(scope).to include(employee)
+      expect(scope).to include(operator)
       expect(scope).not_to include(other_org_user)
     end
   end

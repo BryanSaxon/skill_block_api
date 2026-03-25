@@ -30,9 +30,9 @@ RSpec.describe User, type: :model do
   end
 
   describe "role enum" do
-    it "defaults to employee" do
+    it "defaults to operator" do
       user = create(:user, organization: other_org)
-      expect(user.role).to eq("employee")
+      expect(user.role).to eq("operator")
     end
 
     it "rejects an invalid role integer" do

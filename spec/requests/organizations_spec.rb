@@ -6,7 +6,7 @@ RSpec.describe "Organizations", type: :request do
 
   let(:super_admin) { create(:super_admin_user, organization: skill_block_org) }
   let(:admin) { create(:admin_user, organization: other_org) }
-  let(:employee) { create(:user, organization: other_org) }
+  let(:operator) { create(:user, organization: other_org) }
 
   describe "GET /organizations" do
     before {

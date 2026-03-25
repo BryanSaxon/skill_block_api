@@ -1,6 +1,6 @@
 class OrganizationPolicy < ApplicationPolicy
   def index?
-    user.super_admin? || user.admin? || user.manager? || user.employee?
+    user.super_admin? || user.admin? || user.manager? || user.operator?
   end
 
   def show?
