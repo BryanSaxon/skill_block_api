@@ -2,6 +2,7 @@ class Organization < ApplicationRecord
   SKILL_BLOCK_NAME = "Skill Block"
 
   has_many :users, dependent: :destroy
+  has_many :organization_machines, dependent: :destroy
 
   has_one_attached :logo
 

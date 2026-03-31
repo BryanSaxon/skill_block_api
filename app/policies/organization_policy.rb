@@ -1,27 +1,27 @@
 class OrganizationPolicy < ApplicationPolicy
   def index?
-    user.super_admin? || user.admin? || user.manager? || user.operator?
+    user.owner? || user.admin? || user.manager? || user.operator?
   end
 
   def show?
-    user.super_admin? || same_organization?
+    user.owner? || same_organization?
   end
 
   def create?
-    user.super_admin?
+    user.owner?
   end
 
   def update?
-    user.super_admin? || (user.admin? && same_organization?)
+    user.owner? || (user.admin? && same_organization?)
   end
 
   def destroy?
-    user.super_admin?
+    user.owner?
   end
 
   class Scope < ApplicationPolicy::Scope
     def resolve
-      if user.super_admin?
+      if user.owner?
         scope.all
       else
         scope.where(id: user.organization_id)

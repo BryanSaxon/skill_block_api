@@ -42,14 +42,14 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe "super_admin restriction" do
-    it "allows super_admin in the Skill Block org" do
-      user = build(:super_admin_user, organization: skill_block_org)
+  describe "owner restriction" do
+    it "allows owner in the Skill Block org" do
+      user = build(:owner_user, organization: skill_block_org)
       expect(user).to be_valid
     end
 
-    it "disallows super_admin in another org" do
-      user = build(:user, role: :super_admin, organization: other_org)
+    it "disallows owner in another org" do
+      user = build(:user, role: :owner, organization: other_org)
       expect(user).not_to be_valid
       expect(user.errors[:role]).to be_present
     end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_25_035403) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_31_013609) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,6 +42,37 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_25_035403) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "machines", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.bigint "manufacturer_id", null: false
+    t.string "model_number", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["manufacturer_id", "model_number"], name: "index_machines_on_manufacturer_id_and_model_number", unique: true
+    t.index ["manufacturer_id"], name: "index_machines_on_manufacturer_id"
+  end
+
+  create_table "manufacturers", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_manufacturers_on_name", unique: true
+  end
+
+  create_table "organization_machines", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "machine_id", null: false
+    t.string "nickname"
+    t.bigint "organization_id", null: false
+    t.string "status", default: "active", null: false
+    t.datetime "updated_at", null: false
+    t.string "vin", null: false
+    t.index ["machine_id"], name: "index_organization_machines_on_machine_id"
+    t.index ["organization_id", "vin"], name: "index_organization_machines_on_organization_id_and_vin", unique: true
+    t.index ["organization_id"], name: "index_organization_machines_on_organization_id"
+  end
+
   create_table "organizations", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -56,6 +87,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_25_035403) do
     t.string "user_agent"
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "user_organization_machines", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "organization_machine_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["organization_machine_id"], name: "index_user_organization_machines_on_organization_machine_id"
+    t.index ["user_id", "organization_machine_id"], name: "idx_on_user_id_organization_machine_id_2358481fcb", unique: true
+    t.index ["user_id"], name: "index_user_organization_machines_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -73,6 +114,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_25_035403) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "machines", "manufacturers"
+  add_foreign_key "organization_machines", "machines"
+  add_foreign_key "organization_machines", "organizations"
   add_foreign_key "sessions", "users"
+  add_foreign_key "user_organization_machines", "organization_machines"
+  add_foreign_key "user_organization_machines", "users"
   add_foreign_key "users", "organizations"
 end

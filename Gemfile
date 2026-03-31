@@ -1,5 +1,6 @@
 source "https://rubygems.org"
 
+gem "aasm"
 gem "active_storage_validations"
 gem "bcrypt", "~> 3.1.7"
 gem "bootsnap", require: false

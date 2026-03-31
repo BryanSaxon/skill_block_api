@@ -5,14 +5,14 @@ RSpec.describe "Users", type: :request do
   let(:other_org) { create(:organization) }
   let(:third_org) { create(:organization) }
 
-  let(:super_admin) { create(:super_admin_user, organization: skill_block_org) }
+  let(:owner) { create(:owner_user, organization: skill_block_org) }
   let(:admin) { create(:admin_user, organization: other_org) }
   let(:operator) { create(:user, organization: other_org) }
   let(:other_org_user) { create(:user, organization: third_org) }
 
   describe "GET /users" do
     before {
-      super_admin
+      owner
       admin
       operator
       other_org_user
@@ -23,8 +23,8 @@ RSpec.describe "Users", type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it "returns all users for super_admin" do
-      get "/users", headers: auth_headers_for(super_admin)
+    it "returns all users for owner" do
+      get "/users", headers: auth_headers_for(owner)
       expect(response).to have_http_status(:ok)
       expect(json[:data].length).to eq(4)
     end
@@ -71,7 +71,7 @@ RSpec.describe "Users", type: :request do
     end
 
     it "returns 404 for a non-existent user" do
-      get "/users/0", headers: auth_headers_for(super_admin)
+      get "/users/0", headers: auth_headers_for(owner)
       expect(response).to have_http_status(:not_found)
     end
   end
@@ -99,8 +99,8 @@ RSpec.describe "Users", type: :request do
       expect(json[:data][:attributes][:email]).to eq("new@example.com")
     end
 
-    it "allows super_admin to create a user" do
-      post "/users", params: valid_params, headers: auth_headers_for(super_admin)
+    it "allows owner to create a user" do
+      post "/users", params: valid_params, headers: auth_headers_for(owner)
       expect(response).to have_http_status(:created)
     end
 
@@ -116,7 +116,7 @@ RSpec.describe "Users", type: :request do
     end
 
     it "returns 404 for a non-existent organization" do
-      post "/users", params: valid_params.merge(organization_id: 0), headers: auth_headers_for(super_admin)
+      post "/users", params: valid_params.merge(organization_id: 0), headers: auth_headers_for(owner)
       expect(response).to have_http_status(:not_found)
     end
   end
@@ -171,8 +171,8 @@ RSpec.describe "Users", type: :request do
       expect(response).to have_http_status(:forbidden)
     end
 
-    it "allows super_admin to delete any user" do
-      delete "/users/#{other_org_user.id}", headers: auth_headers_for(super_admin)
+    it "allows owner to delete any user" do
+      delete "/users/#{other_org_user.id}", headers: auth_headers_for(owner)
       expect(response).to have_http_status(:no_content)
     end
   end

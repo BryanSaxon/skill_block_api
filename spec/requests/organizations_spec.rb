@@ -4,7 +4,7 @@ RSpec.describe "Organizations", type: :request do
   let(:skill_block_org) { create(:skill_block_organization) }
   let(:other_org) { create(:organization) }
 
-  let(:super_admin) { create(:super_admin_user, organization: skill_block_org) }
+  let(:owner) { create(:owner_user, organization: skill_block_org) }
   let(:admin) { create(:admin_user, organization: other_org) }
   let(:operator) { create(:user, organization: other_org) }
 
@@ -19,13 +19,13 @@ RSpec.describe "Organizations", type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it "returns all organizations for super_admin" do
-      get "/organizations", headers: auth_headers_for(super_admin)
+    it "returns all organizations for owner" do
+      get "/organizations", headers: auth_headers_for(owner)
       expect(response).to have_http_status(:ok)
       expect(json[:data].length).to eq(2)
     end
 
-    it "returns only the user's organization for non-super_admin" do
+    it "returns only the user's organization for non-owner" do
       get "/organizations", headers: auth_headers_for(admin)
       expect(response).to have_http_status(:ok)
       expect(json[:data].length).to eq(1)
@@ -51,7 +51,7 @@ RSpec.describe "Organizations", type: :request do
     end
 
     it "returns 404 for a non-existent organization" do
-      get "/organizations/0", headers: auth_headers_for(super_admin)
+      get "/organizations/0", headers: auth_headers_for(owner)
       expect(response).to have_http_status(:not_found)
     end
   end
@@ -64,8 +64,8 @@ RSpec.describe "Organizations", type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it "allows super_admin to create an organization" do
-      post "/organizations", params: valid_params, headers: auth_headers_for(super_admin)
+    it "allows owner to create an organization" do
+      post "/organizations", params: valid_params, headers: auth_headers_for(owner)
       expect(response).to have_http_status(:created)
       expect(json[:data][:attributes][:name]).to eq("New Org")
     end
@@ -76,7 +76,7 @@ RSpec.describe "Organizations", type: :request do
     end
 
     it "returns 422 with invalid params" do
-      post "/organizations", params: {name: ""}, headers: auth_headers_for(super_admin)
+      post "/organizations", params: {name: ""}, headers: auth_headers_for(owner)
       expect(response).to have_http_status(:unprocessable_content)
       expect(json[:errors]).to be_present
     end
@@ -88,8 +88,8 @@ RSpec.describe "Organizations", type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it "allows super_admin to update any organization" do
-      patch "/organizations/#{other_org.id}", params: {name: "Updated"}, headers: auth_headers_for(super_admin)
+    it "allows owner to update any organization" do
+      patch "/organizations/#{other_org.id}", params: {name: "Updated"}, headers: auth_headers_for(owner)
       expect(response).to have_http_status(:ok)
       expect(json[:data][:attributes][:name]).to eq("Updated")
     end
@@ -105,7 +105,7 @@ RSpec.describe "Organizations", type: :request do
     end
 
     it "returns 422 with invalid params" do
-      patch "/organizations/#{other_org.id}", params: {name: ""}, headers: auth_headers_for(super_admin)
+      patch "/organizations/#{other_org.id}", params: {name: ""}, headers: auth_headers_for(owner)
       expect(response).to have_http_status(:unprocessable_content)
     end
   end
@@ -116,8 +116,8 @@ RSpec.describe "Organizations", type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it "allows super_admin to delete an organization" do
-      delete "/organizations/#{other_org.id}", headers: auth_headers_for(super_admin)
+    it "allows owner to delete an organization" do
+      delete "/organizations/#{other_org.id}", headers: auth_headers_for(owner)
       expect(response).to have_http_status(:no_content)
       expect(Organization.exists?(other_org.id)).to be false
     end

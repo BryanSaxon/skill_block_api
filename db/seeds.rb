@@ -16,7 +16,7 @@ User.find_or_create_by!(email: "bryan@bryansaxon.com") do |u|
   u.last_name = "Saxon"
   u.password = "password"
   u.password_confirmation = "password"
-  u.role = :super_admin
+  u.role = :owner
   u.organization = skill_block
 end
 
