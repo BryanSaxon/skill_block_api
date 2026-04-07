@@ -2,12 +2,14 @@ source "https://rubygems.org"
 
 gem "aasm"
 gem "active_storage_validations"
+gem "anthropic"
 gem "bcrypt", "~> 3.1.7"
 gem "bootsnap", require: false
 gem "image_processing", "~> 1.2"
 gem "jsonapi-serializer"
 gem "jwt"
 gem "kamal", require: false
+gem "neighbor"
 gem "pg", "~> 1.1"
 gem "puma", ">= 5.0"
 gem "pundit"

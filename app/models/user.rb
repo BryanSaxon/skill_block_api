@@ -5,6 +5,8 @@ class User < ApplicationRecord
   has_many :organization_machines, through: :user_organization_machines
   has_many :notifications, dependent: :destroy
   has_many :resolved_alerts, class_name: "Alert", foreign_key: :resolved_by_id, dependent: :nullify
+  has_many :training_assignments, dependent: :destroy
+  has_many :assigned_training, class_name: "TrainingAssignment", foreign_key: :assigned_by_id, dependent: :nullify
 
   belongs_to :organization
   has_one_attached :avatar

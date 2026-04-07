@@ -8,6 +8,9 @@ class OrganizationMachine < ApplicationRecord
   has_many :machine_parameters, dependent: :destroy
   has_many :telemetry_readings, dependent: :destroy
   has_many :alerts, dependent: :destroy
+  has_many :documents, dependent: :nullify
+  has_many :curricula, dependent: :destroy
+  has_many :training_assignments, dependent: :destroy
 
   has_many_attached :sops
 
