@@ -5,6 +5,9 @@ class OrganizationMachine < ApplicationRecord
   belongs_to :machine
   has_many :user_organization_machines, dependent: :destroy
   has_many :users, through: :user_organization_machines
+  has_many :machine_parameters, dependent: :destroy
+  has_many :telemetry_readings, dependent: :destroy
+  has_many :alerts, dependent: :destroy
 
   has_many_attached :sops
 
