@@ -1,188 +1,182 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# When a new model is added, add a corresponding section below.
+# db/seeds.rb — idempotent seed data for all environments
+# Runs with: bin/rails db:seed
 
-# ── Organizations ──────────────────────────────────────────────────────────────
+# ── Admin Organization (Skill Block) ─────────────────────────────────────────
 
-skill_block = Organization.find_or_create_by!(name: "Skill Block")
-acme_plant = Organization.find_or_create_by!(name: "Acme Manufacturing")
-apex_plant = Organization.find_or_create_by!(name: "Apex Industries")
+skill_block = Organization.find_or_create_by!(name: "Skill Block") do |o|
+  o.org_type = :admin
+end
+skill_block.update!(org_type: :admin) unless skill_block.admin?
 
 puts "Organizations: #{Organization.count}"
 
-# ── Users ──────────────────────────────────────────────────────────────────────
+# ── Skill Block admin user ────────────────────────────────────────────────────
 
 User.find_or_create_by!(email: "bryan@bryansaxon.com") do |u|
   u.first_name = "Bryan"
   u.last_name = "Saxon"
   u.password = "password"
   u.password_confirmation = "password"
-  u.role = :owner
+  u.role = :admin
   u.organization = skill_block
 end
 
-User.find_or_create_by!(email: "admin@acmemfg.com") do |u|
-  u.first_name = "Alice"
-  u.last_name = "Admin"
-  u.password = "password"
-  u.password_confirmation = "password"
-  u.role = :admin
-  u.organization = acme_plant
-end
+# ── Demo: AluMix 3000 machine ─────────────────────────────────────────────────
 
-User.find_or_create_by!(email: "manager@acmemfg.com") do |u|
-  u.first_name = "Marcus"
-  u.last_name = "Manager"
-  u.password = "password"
-  u.password_confirmation = "password"
-  u.role = :manager
-  u.organization = acme_plant
-end
+alumi_tech = Manufacturer.find_or_create_by!(name: "AluMi Tech")
 
-acme_operator1 = User.find_or_create_by!(email: "operator1@acmemfg.com") do |u|
-  u.first_name = "Olivia"
-  u.last_name = "Operator"
-  u.password = "password"
-  u.password_confirmation = "password"
-  u.role = :operator
-  u.organization = acme_plant
-end
-
-acme_operator2 = User.find_or_create_by!(email: "operator2@acmemfg.com") do |u|
-  u.first_name = "Oscar"
-  u.last_name = "Operator"
-  u.password = "password"
-  u.password_confirmation = "password"
-  u.role = :operator
-  u.organization = acme_plant
-end
-
-User.find_or_create_by!(email: "admin@apexindustries.com") do |u|
-  u.first_name = "Adrian"
-  u.last_name = "Admin"
-  u.password = "password"
-  u.password_confirmation = "password"
-  u.role = :admin
-  u.organization = apex_plant
-end
-
-apex_operator = User.find_or_create_by!(email: "operator@apexindustries.com") do |u|
-  u.first_name = "Owen"
-  u.last_name = "Operator"
-  u.password = "password"
-  u.password_confirmation = "password"
-  u.role = :operator
-  u.organization = apex_plant
-end
-
-puts "Users: #{User.count}"
-
-# ── Manufacturers ──────────────────────────────────────────────────────────────
-
-rockwell = Manufacturer.find_or_create_by!(name: "Rockwell Automation")
-siemens = Manufacturer.find_or_create_by!(name: "Siemens")
-fanuc = Manufacturer.find_or_create_by!(name: "FANUC")
-abb = Manufacturer.find_or_create_by!(name: "ABB Robotics")
-
-puts "Manufacturers: #{Manufacturer.count}"
-
-# ── Machines ───────────────────────────────────────────────────────────────────
-
-conveyor_a = Machine.find_or_create_by!(manufacturer: rockwell, model_number: "1336-B030-EAD-L6-HA2") do |m|
-  m.name = "PowerFlex Belt Conveyor"
-  m.description = "Variable-speed belt conveyor drive with integrated safety relay. Rated for 30 HP continuous operation."
-end
-
-conveyor_b = Machine.find_or_create_by!(manufacturer: siemens, model_number: "SIMATIC-ET200SP-CV1") do |m|
-  m.name = "SIMATIC Roller Conveyor"
-  m.description = "Modular roller conveyor with ET 200SP distributed I/O. Supports up to 500 kg load per section."
-end
-
-robot_arm = Machine.find_or_create_by!(manufacturer: fanuc, model_number: "M-20iD/35") do |m|
-  m.name = "M-20iD Articulated Robot"
-  m.description = "6-axis articulated robot arm with 35 kg payload. Used for pick-and-place and assembly tasks."
-end
-
-welding_robot = Machine.find_or_create_by!(manufacturer: abb, model_number: "IRB-1600-10/1.45") do |m|
-  m.name = "IRB 1600 Welding Robot"
-  m.description = "High-speed welding robot with 10 kg payload and 1.45 m reach. Optimized for arc welding cells."
-end
-
-cnc_mill = Machine.find_or_create_by!(manufacturer: fanuc, model_number: "ROBODRILL-D21MiB5") do |m|
-  m.name = "ROBODRILL CNC Machining Center"
-  m.description = "Compact CNC vertical machining center with 21-tool magazine. Spindle speed up to 24,000 RPM."
-end
-
-plc = Machine.find_or_create_by!(manufacturer: siemens, model_number: "6ES7-315-2EH14-0AB0") do |m|
-  m.name = "SIMATIC S7-300 PLC"
-  m.description = "Programmable logic controller for mid-range automation tasks. Supports PROFIBUS and PROFINET."
+alumix = Machine.find_or_create_by!(manufacturer: alumi_tech, model_number: "ALX-3000-B") do |m|
+  m.name = "AluMix 3000"
+  m.description = "Industrial batch mixer for aluminum alloy compounds. " \
+                  "Capacity 200 kg, variable-speed drum, integrated temperature monitoring."
 end
 
 puts "Machines: #{Machine.count}"
 
-# ── Organization Machines ──────────────────────────────────────────────────────
+# ── Demo: Contoso Manufacturing (client org) ──────────────────────────────────
 
-# Acme Manufacturing machines
-acme_conveyor1 = OrganizationMachine.find_or_create_by!(organization: acme_plant, vin: "RKW-CV-2019-00142") do |om|
-  om.machine = conveyor_a
-  om.nickname = "Line 1 Conveyor"
+contoso = Organization.find_or_create_by!(name: "Contoso Manufacturing") do |o|
+  o.org_type = :client
 end
 
-acme_conveyor2 = OrganizationMachine.find_or_create_by!(organization: acme_plant, vin: "SIE-CV-2021-00387") do |om|
-  om.machine = conveyor_b
-  om.nickname = "Line 2 Conveyor"
+# Demo personas
+david = User.find_or_create_by!(email: "david@contosomfg.com") do |u|
+  u.first_name = "David"
+  u.last_name = "Chen"
+  u.password = "password"
+  u.password_confirmation = "password"
+  u.role = :admin
+  u.organization = contoso
 end
 
-acme_robot = OrganizationMachine.find_or_create_by!(organization: acme_plant, vin: "FNC-RB-2022-00051") do |om|
-  om.machine = robot_arm
-  om.nickname = "Assembly Cell A"
+sandra = User.find_or_create_by!(email: "sandra@contosomfg.com") do |u|
+  u.first_name = "Sandra"
+  u.last_name = "Rivera"
+  u.password = "password"
+  u.password_confirmation = "password"
+  u.role = :manager
+  u.organization = contoso
 end
 
-acme_cnc = OrganizationMachine.find_or_create_by!(organization: acme_plant, vin: "FNC-CNC-2020-00899") do |om|
-  om.machine = cnc_mill
-  om.nickname = "Machining Bay 1"
-  om.status = "maintenance"
+carlos = User.find_or_create_by!(email: "carlos@contosomfg.com") do |u|
+  u.first_name = "Carlos"
+  u.last_name = "Mendez"
+  u.password = "password"
+  u.password_confirmation = "password"
+  u.role = :operator
+  u.organization = contoso
+  u.manager = sandra
 end
 
-acme_plc = OrganizationMachine.find_or_create_by!(organization: acme_plant, vin: "SIE-PLC-2018-04412") do |om|
-  om.machine = plc
-  om.nickname = "Main Control Panel"
-  om.status = "inactive"
+puts "Users: #{User.count}"
+
+# ── Demo: Line 4 Mixer (organization machine) ─────────────────────────────────
+
+line4 = OrganizationMachine.find_or_create_by!(organization: contoso, vin: "ALX-2023-L4-001") do |om|
+  om.machine = alumix
+  om.nickname = "Line 4 Mixer"
 end
 
-# Apex Industries machines
-apex_welder = OrganizationMachine.find_or_create_by!(organization: apex_plant, vin: "ABB-WR-2023-00017") do |om|
-  om.machine = welding_robot
-  om.nickname = "Weld Station 1"
-end
-
-apex_conveyor = OrganizationMachine.find_or_create_by!(organization: apex_plant, vin: "RKW-CV-2020-00278") do |om|
-  om.machine = conveyor_a
-  om.nickname = "Outfeed Conveyor"
-end
-
-apex_robot = OrganizationMachine.find_or_create_by!(organization: apex_plant, vin: "FNC-RB-2021-00103") do |om|
-  om.machine = robot_arm
-  om.nickname = "Pack & Place Robot"
-end
+# Assign Carlos to Line 4
+UserOrganizationMachine.find_or_create_by!(user: carlos, organization_machine: line4)
 
 puts "Organization Machines: #{OrganizationMachine.count}"
 
-# ── User Organization Machines ─────────────────────────────────────────────────
+# ── Demo: Machine Parameters (8 from MVP Plan) ────────────────────────────────
 
-# Assign Acme operators to their machines
-UserOrganizationMachine.find_or_create_by!(user: acme_operator1, organization_machine: acme_conveyor1)
-UserOrganizationMachine.find_or_create_by!(user: acme_operator1, organization_machine: acme_conveyor2)
-UserOrganizationMachine.find_or_create_by!(user: acme_operator1, organization_machine: acme_plc)
+parameters = [
+  {
+    name: "drum_speed",
+    unit: "RPM",
+    normal_min: 40,
+    normal_max: 120,
+    warning_threshold: 30,
+    critical_threshold: 135,
+    display_order: 1
+  },
+  {
+    name: "motor_temperature",
+    unit: "°C",
+    normal_min: 55,
+    normal_max: 85,
+    warning_threshold: 95,
+    critical_threshold: 105,
+    display_order: 2
+  },
+  {
+    name: "drum_temperature",
+    unit: "°C",
+    normal_min: 20,
+    normal_max: 75,
+    warning_threshold: 80,
+    critical_threshold: nil,
+    display_order: 3
+  },
+  {
+    name: "torque",
+    unit: "Nm",
+    normal_min: 150,
+    normal_max: 400,
+    warning_threshold: 450,
+    critical_threshold: nil,
+    display_order: 4
+  },
+  {
+    name: "batch_weight",
+    unit: "kg",
+    normal_min: 80,
+    normal_max: 200,
+    warning_threshold: 220,
+    critical_threshold: nil,
+    display_order: 5
+  },
+  {
+    name: "vibration_rms",
+    unit: "mm/s",
+    normal_min: 0,
+    normal_max: 4.5,
+    warning_threshold: 6,
+    critical_threshold: 9,
+    display_order: 6
+  },
+  {
+    name: "cycle_phase",
+    unit: "",
+    normal_min: nil,
+    normal_max: nil,
+    warning_threshold: nil,
+    critical_threshold: nil,
+    display_order: 7
+  },
+  {
+    name: "cycle_count",
+    unit: "",
+    normal_min: nil,
+    normal_max: nil,
+    warning_threshold: nil,
+    critical_threshold: nil,
+    display_order: 8
+  }
+]
 
-UserOrganizationMachine.find_or_create_by!(user: acme_operator2, organization_machine: acme_robot)
-UserOrganizationMachine.find_or_create_by!(user: acme_operator2, organization_machine: acme_cnc)
+parameters.each do |params|
+  MachineParameter.find_or_create_by!(
+    organization_machine: line4,
+    name: params[:name]
+  ) do |p|
+    p.unit = params[:unit]
+    p.normal_min = params[:normal_min]
+    p.normal_max = params[:normal_max]
+    p.warning_threshold = params[:warning_threshold]
+    p.critical_threshold = params[:critical_threshold]
+    p.display_order = params[:display_order]
+  end
+end
 
-# Assign Apex operator to their machines
-UserOrganizationMachine.find_or_create_by!(user: apex_operator, organization_machine: apex_welder)
-UserOrganizationMachine.find_or_create_by!(user: apex_operator, organization_machine: apex_conveyor)
-UserOrganizationMachine.find_or_create_by!(user: apex_operator, organization_machine: apex_robot)
-
-puts "User Organization Machines: #{UserOrganizationMachine.count}"
+puts "Machine Parameters: #{MachineParameter.count}"
+puts ""
+puts "Demo credentials:"
+puts "  Admin:    david@contosomfg.com   / password"
+puts "  Manager:  sandra@contosomfg.com  / password"
+puts "  Operator: carlos@contosomfg.com  / password"
+puts "  Machine:  Line 4 Mixer (id: #{line4.id})"

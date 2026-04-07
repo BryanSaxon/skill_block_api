@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_07_042108) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_07_042527) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -139,7 +139,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_042108) do
     t.decimal "normal_max", precision: 10, scale: 4
     t.decimal "normal_min", precision: 10, scale: 4
     t.bigint "organization_machine_id", null: false
-    t.string "unit", null: false
+    t.string "unit"
     t.datetime "updated_at", null: false
     t.decimal "warning_threshold", precision: 10, scale: 4
     t.index ["organization_machine_id", "name"], name: "index_machine_parameters_on_organization_machine_id_and_name", unique: true
