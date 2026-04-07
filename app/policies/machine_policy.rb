@@ -8,15 +8,15 @@ class MachinePolicy < ApplicationPolicy
   end
 
   def create?
-    user.owner?
+    admin_org_user?
   end
 
   def update?
-    user.owner?
+    admin_org_user?
   end
 
   def destroy?
-    user.owner?
+    admin_org_user?
   end
 
   class Scope < ApplicationPolicy::Scope

@@ -17,6 +17,14 @@ class OrganizationsController < ApplicationController
     authorize organization
 
     if organization.save
+      if params[:admin_email].present?
+        invitation = organization.invitations.create!(
+          email: params[:admin_email],
+          role: :admin,
+          invited_by: current_user
+        )
+        InvitationsMailer.invite(invitation).deliver_later
+      end
       render json: OrganizationSerializer.new(organization).serializable_hash, status: :created
     else
       render json: {errors: organization.errors.full_messages}, status: :unprocessable_content
@@ -46,6 +54,6 @@ class OrganizationsController < ApplicationController
   end
 
   def organization_params
-    params.permit(:name, :logo)
+    params.permit(:name, :logo, :org_type)
   end
 end

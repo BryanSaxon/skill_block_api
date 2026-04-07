@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe "UserOrganizationMachines", type: :request do
   let(:skill_block_org) { create(:skill_block_organization) }
   let(:other_org) { create(:organization) }
-  let(:owner) { create(:owner_user, organization: skill_block_org) }
+  let(:admin_org_user) { create(:admin_org_user, organization: skill_block_org) }
   let(:admin) { create(:admin_user, organization: other_org) }
   let(:manager) { create(:manager_user, organization: other_org) }
   let(:operator) { create(:user, organization: other_org) }

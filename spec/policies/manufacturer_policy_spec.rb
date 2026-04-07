@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe ManufacturerPolicy, type: :policy do
   let(:skill_block_org) { create(:skill_block_organization) }
   let(:other_org) { create(:organization) }
-  let(:owner) { create(:owner_user, organization: skill_block_org) }
+  let(:admin_org_user) { create(:admin_org_user, organization: skill_block_org) }
   let(:admin) { create(:admin_user, organization: other_org) }
   let(:operator) { create(:user, organization: other_org) }
   let(:manufacturer) { create(:manufacturer) }
@@ -12,15 +12,15 @@ RSpec.describe ManufacturerPolicy, type: :policy do
 
   permissions :index?, :show? do
     it "grants access to all roles" do
-      expect(subject).to permit(owner, manufacturer)
+      expect(subject).to permit(admin_org_user, manufacturer)
       expect(subject).to permit(admin, manufacturer)
       expect(subject).to permit(operator, manufacturer)
     end
   end
 
   permissions :create?, :update?, :destroy? do
-    it "grants access to owner" do
-      expect(subject).to permit(owner, manufacturer)
+    it "grants access to admin org user" do
+      expect(subject).to permit(admin_org_user, manufacturer)
     end
 
     it "denies access to admin" do

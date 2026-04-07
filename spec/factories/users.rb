@@ -16,8 +16,8 @@ FactoryBot.define do
       role { :manager }
     end
 
-    factory :owner_user do
-      role { :owner }
+    factory :admin_org_user do
+      role { :admin }
       association :organization, factory: :skill_block_organization
     end
   end

@@ -1,7 +1,7 @@
 class OrganizationSerializer
   include JSONAPI::Serializer
 
-  attributes :name
+  attributes :name, :org_type
 
   attribute :logo_url do |organization|
     next unless organization.logo.attached?

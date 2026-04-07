@@ -4,24 +4,24 @@ class OrganizationMachinePolicy < ApplicationPolicy
   end
 
   def show?
-    user.owner? || ((user.admin? || user.manager?) && same_organization?) || assigned_operator?
+    admin_org_user? || ((user.admin? || user.manager?) && same_organization?) || assigned_operator?
   end
 
   def create?
-    user.owner? || (user.admin? && same_organization?)
+    admin_org_user? || (user.admin? && same_organization?)
   end
 
   def update?
-    user.owner? || (user.admin? && same_organization?) || (user.manager? && same_organization?)
+    admin_org_user? || (user.admin? && same_organization?) || (user.manager? && same_organization?)
   end
 
   def destroy?
-    user.owner? || (user.admin? && same_organization?)
+    admin_org_user? || (user.admin? && same_organization?)
   end
 
   class Scope < ApplicationPolicy::Scope
     def resolve
-      if user.owner?
+      if admin_org_user?
         scope.all
       elsif user.admin? || user.manager?
         scope.where(organization: user.organization)

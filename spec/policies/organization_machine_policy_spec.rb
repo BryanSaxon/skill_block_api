@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe OrganizationMachinePolicy, type: :policy do
   let(:skill_block_org) { create(:skill_block_organization) }
   let(:other_org) { create(:organization) }
-  let(:owner) { create(:owner_user, organization: skill_block_org) }
+  let(:admin_org_user) { create(:admin_org_user, organization: skill_block_org) }
   let(:admin) { create(:admin_user, organization: other_org) }
   let(:manager) { create(:manager_user, organization: other_org) }
   let(:operator) { create(:user, organization: other_org) }
@@ -14,8 +14,8 @@ RSpec.describe OrganizationMachinePolicy, type: :policy do
   subject { described_class }
 
   permissions :index? do
-    it "grants access to owner" do
-      expect(subject).to permit(owner, org_machine)
+    it "grants access to admin org user" do
+      expect(subject).to permit(admin_org_user, org_machine)
     end
 
     it "grants access to admin in same org" do
@@ -32,8 +32,8 @@ RSpec.describe OrganizationMachinePolicy, type: :policy do
   end
 
   permissions :show? do
-    it "grants access to owner" do
-      expect(subject).to permit(owner, org_machine)
+    it "grants access to admin org user" do
+      expect(subject).to permit(admin_org_user, org_machine)
     end
 
     it "grants access to admin in same org" do
@@ -51,8 +51,8 @@ RSpec.describe OrganizationMachinePolicy, type: :policy do
   end
 
   permissions :create?, :destroy? do
-    it "grants access to owner" do
-      expect(subject).to permit(owner, org_machine)
+    it "grants access to admin org user" do
+      expect(subject).to permit(admin_org_user, org_machine)
     end
 
     it "grants access to admin in same org" do
@@ -69,8 +69,8 @@ RSpec.describe OrganizationMachinePolicy, type: :policy do
   end
 
   permissions :update? do
-    it "grants access to owner" do
-      expect(subject).to permit(owner, org_machine)
+    it "grants access to admin org user" do
+      expect(subject).to permit(admin_org_user, org_machine)
     end
 
     it "grants access to admin in same org" do
@@ -89,10 +89,10 @@ RSpec.describe OrganizationMachinePolicy, type: :policy do
   describe OrganizationMachinePolicy::Scope do
     let(:other_org_machine) { create(:organization_machine) }
 
-    it "returns all organization machines for owner" do
+    it "returns all organization machines for admin org user" do
       org_machine
       other_org_machine
-      scope = described_class.new(owner, OrganizationMachine).resolve
+      scope = described_class.new(admin_org_user, OrganizationMachine).resolve
       expect(scope).to include(org_machine, other_org_machine)
     end
 

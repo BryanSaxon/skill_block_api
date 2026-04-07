@@ -44,7 +44,7 @@ RSpec.describe User, type: :model do
 
   describe "owner restriction" do
     it "allows owner in the Skill Block org" do
-      user = build(:owner_user, organization: skill_block_org)
+      user = build(:admin_org_user, organization: skill_block_org)
       expect(user).to be_valid
     end
 
@@ -52,6 +52,45 @@ RSpec.describe User, type: :model do
       user = build(:user, role: :owner, organization: other_org)
       expect(user).not_to be_valid
       expect(user.errors[:role]).to be_present
+    end
+  end
+
+  describe "#admin_org_user?" do
+    it "returns true for users in the admin org" do
+      user = build(:admin_org_user)
+      expect(user.admin_org_user?).to be true
+    end
+
+    it "returns false for users in client orgs" do
+      user = build(:user)
+      expect(user.admin_org_user?).to be false
+    end
+  end
+
+  describe "manager assignment" do
+    let(:org) { create(:organization) }
+    let(:mgr) { create(:manager_user, organization: org) }
+
+    it "is valid when an operator is assigned a manager in the same org" do
+      operator = build(:user, role: :operator, organization: org, manager: mgr)
+      expect(operator).to be_valid
+    end
+
+    it "is invalid when manager is in a different org" do
+      other_mgr = create(:manager_user)
+      operator = build(:user, role: :operator, organization: org, manager: other_mgr)
+      expect(operator).not_to be_valid
+    end
+
+    it "is invalid when a non-operator is assigned a manager" do
+      admin = build(:admin_user, organization: org, manager: mgr)
+      expect(admin).not_to be_valid
+    end
+
+    it "is invalid when the manager does not have manager role" do
+      non_mgr = create(:admin_user, organization: org)
+      operator = build(:user, role: :operator, organization: org, manager: non_mgr)
+      expect(operator).not_to be_valid
     end
   end
 

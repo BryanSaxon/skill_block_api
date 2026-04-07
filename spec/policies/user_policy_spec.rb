@@ -4,7 +4,7 @@ RSpec.describe UserPolicy, type: :policy do
   let(:skill_block_org) { create(:skill_block_organization) }
   let(:other_org) { create(:organization) }
 
-  let(:owner) { create(:owner_user, organization: skill_block_org) }
+  let(:admin_org_user) { create(:admin_org_user, organization: skill_block_org) }
   let(:admin) { create(:admin_user, organization: other_org) }
   let(:manager) { create(:manager_user, organization: other_org) }
   let(:operator) { create(:user, organization: other_org) }
@@ -13,16 +13,16 @@ RSpec.describe UserPolicy, type: :policy do
   subject { described_class }
 
   permissions :index? do
-    it "grants access to owner" do
-      expect(subject).to permit(owner, operator)
+    it "grants access to admin org user" do
+      expect(subject).to permit(admin_org_user, operator)
     end
 
     it "grants access to admin" do
       expect(subject).to permit(admin, operator)
     end
 
-    it "denies access to manager" do
-      expect(subject).not_to permit(manager, operator)
+    it "grants access to manager" do
+      expect(subject).to permit(manager, operator)
     end
 
     it "denies access to operator" do
@@ -31,8 +31,8 @@ RSpec.describe UserPolicy, type: :policy do
   end
 
   permissions :show? do
-    it "grants access to owner for any user" do
-      expect(subject).to permit(owner, other_org_user)
+    it "grants access to admin org user for any user" do
+      expect(subject).to permit(admin_org_user, other_org_user)
     end
 
     it "grants access to a user viewing someone in the same org" do
@@ -49,8 +49,8 @@ RSpec.describe UserPolicy, type: :policy do
   end
 
   permissions :create? do
-    it "grants access to owner" do
-      expect(subject).to permit(owner, operator)
+    it "grants access to admin org user" do
+      expect(subject).to permit(admin_org_user, operator)
     end
 
     it "grants access to admin" do
@@ -63,8 +63,8 @@ RSpec.describe UserPolicy, type: :policy do
   end
 
   permissions :update? do
-    it "grants access to owner for any user" do
-      expect(subject).to permit(owner, other_org_user)
+    it "grants access to admin org user for any user" do
+      expect(subject).to permit(admin_org_user, other_org_user)
     end
 
     it "grants access to admin for users in their org" do
@@ -81,8 +81,8 @@ RSpec.describe UserPolicy, type: :policy do
   end
 
   permissions :destroy? do
-    it "grants access to owner for any user" do
-      expect(subject).to permit(owner, operator)
+    it "grants access to admin org user for any user" do
+      expect(subject).to permit(admin_org_user, operator)
     end
 
     it "grants access to admin for other users in their org" do
@@ -103,10 +103,10 @@ RSpec.describe UserPolicy, type: :policy do
   end
 
   describe UserPolicy::Scope do
-    it "returns all users for owner" do
+    it "returns all users for admin org user" do
       operator
       other_org_user
-      scope = described_class.new(owner, User).resolve
+      scope = described_class.new(admin_org_user, User).resolve
       expect(scope).to include(operator, other_org_user)
     end
 
@@ -116,6 +116,13 @@ RSpec.describe UserPolicy, type: :policy do
       scope = described_class.new(admin, User).resolve
       expect(scope).to include(operator)
       expect(scope).not_to include(other_org_user)
+    end
+
+    it "returns direct reports and self for manager" do
+      direct_report = create(:user, organization: other_org, manager: manager)
+      scope = described_class.new(manager, User).resolve
+      expect(scope).to include(manager, direct_report)
+      expect(scope).not_to include(operator)
     end
   end
 end

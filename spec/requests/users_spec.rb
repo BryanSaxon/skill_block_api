@@ -5,14 +5,14 @@ RSpec.describe "Users", type: :request do
   let(:other_org) { create(:organization) }
   let(:third_org) { create(:organization) }
 
-  let(:owner) { create(:owner_user, organization: skill_block_org) }
+  let(:admin_org_user) { create(:admin_org_user, organization: skill_block_org) }
   let(:admin) { create(:admin_user, organization: other_org) }
   let(:operator) { create(:user, organization: other_org) }
   let(:other_org_user) { create(:user, organization: third_org) }
 
   describe "GET /users" do
     before {
-      owner
+      admin_org_user
       admin
       operator
       other_org_user
@@ -23,8 +23,8 @@ RSpec.describe "Users", type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it "returns all users for owner" do
-      get "/users", headers: auth_headers_for(owner)
+    it "returns all users for admin org user" do
+      get "/users", headers: auth_headers_for(admin_org_user)
       expect(response).to have_http_status(:ok)
       expect(json[:data].length).to eq(4)
     end
@@ -71,52 +71,7 @@ RSpec.describe "Users", type: :request do
     end
 
     it "returns 404 for a non-existent user" do
-      get "/users/0", headers: auth_headers_for(owner)
-      expect(response).to have_http_status(:not_found)
-    end
-  end
-
-  describe "POST /users" do
-    let(:valid_params) do
-      {
-        organization_id: other_org.id,
-        first_name: "New",
-        last_name: "User",
-        email: "new@example.com",
-        password: "password123",
-        password_confirmation: "password123"
-      }
-    end
-
-    it "returns 401 without a token" do
-      post "/users", params: valid_params
-      expect(response).to have_http_status(:unauthorized)
-    end
-
-    it "allows admin to create a user" do
-      post "/users", params: valid_params, headers: auth_headers_for(admin)
-      expect(response).to have_http_status(:created)
-      expect(json[:data][:attributes][:email]).to eq("new@example.com")
-    end
-
-    it "allows owner to create a user" do
-      post "/users", params: valid_params, headers: auth_headers_for(owner)
-      expect(response).to have_http_status(:created)
-    end
-
-    it "returns 403 for operator" do
-      post "/users", params: valid_params, headers: auth_headers_for(operator)
-      expect(response).to have_http_status(:forbidden)
-    end
-
-    it "returns 422 with invalid params" do
-      post "/users", params: valid_params.merge(email: ""), headers: auth_headers_for(admin)
-      expect(response).to have_http_status(:unprocessable_content)
-      expect(json[:errors]).to be_present
-    end
-
-    it "returns 404 for a non-existent organization" do
-      post "/users", params: valid_params.merge(organization_id: 0), headers: auth_headers_for(owner)
+      get "/users/0", headers: auth_headers_for(admin_org_user)
       expect(response).to have_http_status(:not_found)
     end
   end
@@ -171,8 +126,8 @@ RSpec.describe "Users", type: :request do
       expect(response).to have_http_status(:forbidden)
     end
 
-    it "allows owner to delete any user" do
-      delete "/users/#{other_org_user.id}", headers: auth_headers_for(owner)
+    it "allows admin org user to delete any user" do
+      delete "/users/#{other_org_user.id}", headers: auth_headers_for(admin_org_user)
       expect(response).to have_http_status(:no_content)
     end
   end

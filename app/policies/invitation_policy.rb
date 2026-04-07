@@ -1,22 +1,14 @@
-class OrganizationPolicy < ApplicationPolicy
+class InvitationPolicy < ApplicationPolicy
   def index?
-    true
-  end
-
-  def show?
-    admin_org_user? || same_organization?
+    admin_org_user? || (user.admin? && same_organization?)
   end
 
   def create?
-    admin_org_user?
-  end
-
-  def update?
     admin_org_user? || (user.admin? && same_organization?)
   end
 
   def destroy?
-    admin_org_user?
+    admin_org_user? || (user.admin? && same_organization?)
   end
 
   class Scope < ApplicationPolicy::Scope
@@ -24,7 +16,7 @@ class OrganizationPolicy < ApplicationPolicy
       if admin_org_user?
         scope.all
       else
-        scope.where(id: user.organization_id)
+        scope.where(organization_id: user.organization_id)
       end
     end
   end
@@ -32,6 +24,6 @@ class OrganizationPolicy < ApplicationPolicy
   private
 
   def same_organization?
-    record.id == user.organization_id
+    record.organization_id == user.organization_id
   end
 end

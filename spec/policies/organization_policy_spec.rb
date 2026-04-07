@@ -4,7 +4,7 @@ RSpec.describe OrganizationPolicy, type: :policy do
   let(:skill_block_org) { create(:skill_block_organization) }
   let(:other_org) { create(:organization) }
 
-  let(:owner) { create(:owner_user, organization: skill_block_org) }
+  let(:admin_org_user) { create(:admin_org_user, organization: skill_block_org) }
   let(:admin) { create(:admin_user, organization: other_org) }
   let(:manager) { create(:manager_user, organization: other_org) }
   let(:operator) { create(:user, organization: other_org) }
@@ -12,8 +12,8 @@ RSpec.describe OrganizationPolicy, type: :policy do
   subject { described_class }
 
   permissions :index? do
-    it "grants access to owner" do
-      expect(subject).to permit(owner, other_org)
+    it "grants access to admin org user" do
+      expect(subject).to permit(admin_org_user, other_org)
     end
 
     it "grants access to admin" do
@@ -30,8 +30,8 @@ RSpec.describe OrganizationPolicy, type: :policy do
   end
 
   permissions :show? do
-    it "grants access to owner for any org" do
-      expect(subject).to permit(owner, other_org)
+    it "grants access to admin org user for any org" do
+      expect(subject).to permit(admin_org_user, other_org)
     end
 
     it "grants access to a user viewing their own org" do
@@ -44,8 +44,8 @@ RSpec.describe OrganizationPolicy, type: :policy do
   end
 
   permissions :create? do
-    it "grants access to owner" do
-      expect(subject).to permit(owner, other_org)
+    it "grants access to admin org user" do
+      expect(subject).to permit(admin_org_user, other_org)
     end
 
     it "denies access to admin" do
@@ -54,8 +54,8 @@ RSpec.describe OrganizationPolicy, type: :policy do
   end
 
   permissions :update? do
-    it "grants access to owner for any org" do
-      expect(subject).to permit(owner, other_org)
+    it "grants access to admin org user for any org" do
+      expect(subject).to permit(admin_org_user, other_org)
     end
 
     it "grants access to admin for their own org" do
@@ -72,8 +72,8 @@ RSpec.describe OrganizationPolicy, type: :policy do
   end
 
   permissions :destroy? do
-    it "grants access to owner" do
-      expect(subject).to permit(owner, other_org)
+    it "grants access to admin org user" do
+      expect(subject).to permit(admin_org_user, other_org)
     end
 
     it "denies access to admin" do
@@ -82,10 +82,10 @@ RSpec.describe OrganizationPolicy, type: :policy do
   end
 
   describe OrganizationPolicy::Scope do
-    it "returns all organizations for owner" do
+    it "returns all organizations for admin org user" do
       other_org
       skill_block_org
-      scope = described_class.new(owner, Organization).resolve
+      scope = described_class.new(admin_org_user, Organization).resolve
       expect(scope).to include(other_org, skill_block_org)
     end
 

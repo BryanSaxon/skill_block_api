@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe "OrganizationMachines", type: :request do
   let(:skill_block_org) { create(:skill_block_organization) }
   let(:other_org) { create(:organization) }
-  let(:owner) { create(:owner_user, organization: skill_block_org) }
+  let(:admin_org_user) { create(:admin_org_user, organization: skill_block_org) }
   let(:admin) { create(:admin_user, organization: other_org) }
   let(:manager) { create(:manager_user, organization: other_org) }
   let(:operator) { create(:user, organization: other_org) }
@@ -72,8 +72,8 @@ RSpec.describe "OrganizationMachines", type: :request do
       expect(json[:data][:attributes][:status]).to eq("active")
     end
 
-    it "allows owner to create an organization machine" do
-      post base_path, params: valid_params, headers: auth_headers_for(owner)
+    it "allows admin org user to create an organization machine" do
+      post base_path, params: valid_params, headers: auth_headers_for(admin_org_user)
       expect(response).to have_http_status(:created)
     end
 

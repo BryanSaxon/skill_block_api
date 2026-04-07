@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe "Machines", type: :request do
   let(:skill_block_org) { create(:skill_block_organization) }
   let(:other_org) { create(:organization) }
-  let(:owner) { create(:owner_user, organization: skill_block_org) }
+  let(:admin_org_user) { create(:admin_org_user, organization: skill_block_org) }
   let(:admin) { create(:admin_user, organization: other_org) }
   let(:manufacturer) { create(:manufacturer) }
 
@@ -32,7 +32,7 @@ RSpec.describe "Machines", type: :request do
     end
 
     it "returns 404 for a non-existent machine" do
-      get "/machines/0", headers: auth_headers_for(owner)
+      get "/machines/0", headers: auth_headers_for(admin_org_user)
       expect(response).to have_http_status(:not_found)
     end
   end
@@ -45,8 +45,8 @@ RSpec.describe "Machines", type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it "allows owner to create a machine" do
-      post "/machines", params: valid_params, headers: auth_headers_for(owner)
+    it "allows admin org user to create a machine" do
+      post "/machines", params: valid_params, headers: auth_headers_for(admin_org_user)
       expect(response).to have_http_status(:created)
       expect(json[:data][:attributes][:name]).to eq("Conveyor X")
     end
@@ -57,7 +57,7 @@ RSpec.describe "Machines", type: :request do
     end
 
     it "returns 422 with invalid params" do
-      post "/machines", params: {manufacturer_id: manufacturer.id, name: ""}, headers: auth_headers_for(owner)
+      post "/machines", params: {manufacturer_id: manufacturer.id, name: ""}, headers: auth_headers_for(admin_org_user)
       expect(response).to have_http_status(:unprocessable_content)
     end
   end
@@ -65,8 +65,8 @@ RSpec.describe "Machines", type: :request do
   describe "PATCH /machines/:id" do
     let(:machine) { create(:machine) }
 
-    it "allows owner to update a machine" do
-      patch "/machines/#{machine.id}", params: {name: "Updated"}, headers: auth_headers_for(owner)
+    it "allows admin org user to update a machine" do
+      patch "/machines/#{machine.id}", params: {name: "Updated"}, headers: auth_headers_for(admin_org_user)
       expect(response).to have_http_status(:ok)
       expect(json[:data][:attributes][:name]).to eq("Updated")
     end
@@ -80,8 +80,8 @@ RSpec.describe "Machines", type: :request do
   describe "DELETE /machines/:id" do
     let(:machine) { create(:machine) }
 
-    it "allows owner to delete a machine" do
-      delete "/machines/#{machine.id}", headers: auth_headers_for(owner)
+    it "allows admin org user to delete a machine" do
+      delete "/machines/#{machine.id}", headers: auth_headers_for(admin_org_user)
       expect(response).to have_http_status(:no_content)
     end
 

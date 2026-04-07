@@ -1,7 +1,7 @@
 class UserSerializer
   include JSONAPI::Serializer
 
-  attributes :first_name, :last_name, :email, :role
+  attributes :first_name, :last_name, :email, :role, :manager_id
 
   attribute :avatar_url do |user|
     next unless user.avatar.attached?

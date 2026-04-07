@@ -1,28 +1,30 @@
 class UserPolicy < ApplicationPolicy
   def index?
-    user.owner? || user.admin?
+    admin_org_user? || user.admin? || user.manager?
   end
 
   def show?
-    user.owner? || same_organization? || own_record?
+    admin_org_user? || same_organization? || own_record?
   end
 
   def create?
-    user.owner? || user.admin?
+    admin_org_user? || (user.admin? && same_organization?)
   end
 
   def update?
-    user.owner? || (user.admin? && same_organization?) || own_record?
+    admin_org_user? || (user.admin? && same_organization?) || own_record?
   end
 
   def destroy?
-    user.owner? || (user.admin? && same_organization? && !own_record?)
+    admin_org_user? || (user.admin? && same_organization? && !own_record?)
   end
 
   class Scope < ApplicationPolicy::Scope
     def resolve
-      if user.owner?
+      if admin_org_user?
         scope.all
+      elsif user.manager?
+        scope.where(organization: user.organization).where("users.id = ? OR users.manager_id = ?", user.id, user.id)
       else
         scope.where(organization: user.organization)
       end
