@@ -7,10 +7,20 @@ module ApplicationCable
     end
 
     private
-      def set_current_user
-        if session = Session.find_by(id: cookies.signed[:session_id])
-          self.current_user = session.user
-        end
-      end
+
+    # Flutter client connects via:
+    #   ws://host/cable?token=<jwt>
+    # The JWT is the same token issued by POST /session.
+    def set_current_user
+      token = request.params[:token]
+      return false unless token.present?
+
+      payload = JsonWebToken.decode(token)
+      session = Session.find(payload[:sub])
+      self.current_user = session.user
+      true
+    rescue JWT::DecodeError, ActiveRecord::RecordNotFound
+      false
+    end
   end
 end

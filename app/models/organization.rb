@@ -7,7 +7,7 @@ class Organization < ApplicationRecord
   has_many :organization_machines, dependent: :destroy
   has_many :invitations, dependent: :destroy
   has_many :documents, dependent: :destroy
-  has_many :curricula, dependent: :destroy
+  has_many :curricula, class_name: "Curriculum", dependent: :destroy
 
   has_one_attached :logo
 

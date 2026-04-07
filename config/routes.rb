@@ -14,7 +14,19 @@ Rails.application.routes.draw do
     resources :invitations, only: %i[index create destroy]
     resources :organization_machines, only: %i[index show create update destroy] do
       resources :user_organization_machines, only: %i[index create destroy]
+      resources :telemetry_readings, only: %i[index], path: "telemetry"
+      resources :alerts, only: %i[index show] do
+        member { post :acknowledge }
+      end
     end
   end
   resources :users, only: %i[index show update destroy]
+
+  # ── Simulator ingest (X-Simulator-Key auth) ───────────────────────────────
+  namespace :simulator do
+    post :telemetry,      to: "/simulator_ingest#telemetry"
+    post :fault,          to: "/simulator_ingest#fault"
+    post :resolve_alerts, to: "/simulator_ingest#resolve_alerts"
+    post :reset,          to: "/simulator_ingest#reset"
+  end
 end

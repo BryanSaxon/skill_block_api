@@ -1,4 +1,6 @@
 class Curriculum < ApplicationRecord
+  self.table_name = "curricula"
+
   belongs_to :organization
   belongs_to :organization_machine
   has_many :curriculum_modules, -> { order(:position) }, dependent: :destroy
