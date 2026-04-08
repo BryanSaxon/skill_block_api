@@ -13,15 +13,28 @@ Rails.application.routes.draw do
   resources :organizations, only: %i[index show create update destroy] do
     resources :invitations, only: %i[index create destroy]
     resources :documents, only: %i[index show create destroy]
+    resources :users, only: %i[index show update destroy]
+    resources :curricula, only: %i[index show update] do
+      member { post :publish }
+      resources :curriculum_modules, only: [], path: "modules" do
+        member { patch :update, to: "curriculum_module_edits#update" }
+      end
+      collection { post :generate }
+    end
     resources :organization_machines, only: %i[index show create update destroy] do
       resources :user_organization_machines, only: %i[index create destroy]
       resources :telemetry_readings, only: %i[index], path: "telemetry"
       resources :alerts, only: %i[index show] do
         member { post :acknowledge }
       end
+      member { post :transition }
     end
   end
-  resources :users, only: %i[index show update destroy]
+
+  resources :notifications, only: %i[index] do
+    member { patch :mark_read }
+    collection { post :mark_all_read }
+  end
 
   resources :training_assignments, only: %i[index show create update destroy] do
     collection { post :bulk }
@@ -32,16 +45,6 @@ Rails.application.routes.draw do
         post :complete
       end
     end
-  end
-
-  resources :curricula, only: %i[index show update] do
-    member do
-      post :publish
-    end
-    resources :curriculum_modules, only: [], path: "modules" do
-      member { patch :update, to: "curriculum_module_edits#update" }
-    end
-    collection { post :generate }
   end
 
   get "manager/dashboard", to: "manager_dashboard#show"

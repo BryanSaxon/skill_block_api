@@ -1,9 +1,12 @@
 class CurriculaController < ApplicationController
+  before_action :set_organization
   before_action :set_curriculum, only: %i[show update publish]
 
   def index
     authorize Curriculum
-    curricula = policy_scope(Curriculum).includes(:organization_machine, :curriculum_modules)
+    curricula = policy_scope(Curriculum)
+      .where(organization_id: @organization.id)
+      .includes(:organization_machine, :curriculum_modules)
     render json: CurriculumSerializer.new(curricula, include: [:curriculum_modules]).serializable_hash
   end
 
@@ -98,6 +101,14 @@ class CurriculaController < ApplicationController
   end
 
   private
+
+  def set_organization
+    @organization = if params[:organization_id].present?
+      Organization.find(params[:organization_id])
+    else
+      current_user.organization
+    end
+  end
 
   def set_curriculum
     @curriculum = Curriculum.find(params[:id])

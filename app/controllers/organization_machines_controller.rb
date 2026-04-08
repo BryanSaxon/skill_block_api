@@ -1,6 +1,6 @@
 class OrganizationMachinesController < ApplicationController
   before_action :set_organization
-  before_action :set_organization_machine, only: %i[show update destroy]
+  before_action :set_organization_machine, only: %i[show update destroy transition]
 
   def index
     authorize OrganizationMachine
@@ -14,7 +14,23 @@ class OrganizationMachinesController < ApplicationController
   end
 
   def create
-    organization_machine = @organization.organization_machines.new(organization_machine_create_params)
+    # Flutter sends name + machine_type to create/find the underlying Machine catalog entry,
+    # plus nickname for the org-specific label and state for the initial AASM status.
+    machine = find_or_create_machine(params[:name], params[:machine_type])
+    unless machine
+      return render json: {errors: ["Machine name is required"]}, status: :unprocessable_content
+    end
+
+    organization_machine = @organization.organization_machines.new(
+      machine: machine,
+      nickname: params[:nickname],
+      vin: SecureRandom.hex(8)
+    )
+    # Allow caller to set initial status directly (active | inactive)
+    if params[:state].present? && %w[active inactive].include?(params[:state])
+      organization_machine.status = params[:state]
+    end
+
     authorize organization_machine
 
     if organization_machine.save
@@ -42,6 +58,12 @@ class OrganizationMachinesController < ApplicationController
     head :no_content
   end
 
+  # POST /organizations/:organization_id/organization_machines/:id/transition
+  def transition
+    authorize @organization_machine, :update?
+    trigger_event(@organization_machine, params[:event])
+  end
+
   private
 
   def set_organization
@@ -52,8 +74,13 @@ class OrganizationMachinesController < ApplicationController
     @organization_machine = @organization.organization_machines.find(params[:id])
   end
 
-  def organization_machine_create_params
-    params.permit(:machine_id, :vin, :nickname)
+  def find_or_create_machine(name, machine_type)
+    return nil if name.blank?
+    manufacturer = Manufacturer.find_or_create_by!(name: "Skill Block")
+    Machine.find_or_create_by!(name: name, manufacturer: manufacturer) do |m|
+      m.model_number = name.parameterize(separator: "-")
+      m.description = machine_type.presence
+    end
   end
 
   def organization_machine_update_params
