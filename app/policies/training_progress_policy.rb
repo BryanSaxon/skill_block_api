@@ -21,10 +21,10 @@ class TrainingProgressPolicy < ApplicationPolicy
         scope.all
       elsif user.admin? || user.manager?
         scope.joins(training_assignment: :user)
-             .where(users: { organization_id: user.organization_id })
+          .where(users: {organization_id: user.organization_id})
       else
         scope.joins(:training_assignment)
-             .where(training_assignments: { user_id: user.id })
+          .where(training_assignments: {user_id: user.id})
       end
     end
   end

@@ -27,11 +27,11 @@ class OrganizationMachineSerializer
   attribute :current_readings do |machine|
     machine.machine_parameters.each_with_object({}) do |param, hash|
       reading = machine.telemetry_readings
-                       .for_parameter(param.name)
-                       .recent_first
-                       .limit(1)
-                       .first
-      hash[param.name] = reading ? { value: reading.value, recorded_at: reading.recorded_at.iso8601 } : nil
+        .for_parameter(param.name)
+        .recent_first
+        .limit(1)
+        .first
+      hash[param.name] = reading ? {value: reading.value, recorded_at: reading.recorded_at.iso8601} : nil
     end
   end
 

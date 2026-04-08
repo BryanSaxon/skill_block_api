@@ -40,7 +40,7 @@ contoso = Organization.find_or_create_by!(name: "Contoso Manufacturing") do |o|
 end
 
 # Demo personas
-david = User.find_or_create_by!(email: "david@contosomfg.com") do |u|
+User.find_or_create_by!(email: "david@contosomfg.com") do |u|
   u.first_name = "David"
   u.last_name = "Chen"
   u.password = "password"

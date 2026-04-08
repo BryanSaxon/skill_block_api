@@ -10,7 +10,7 @@ class CreateTelemetryReadings < ActiveRecord::Migration[8.1]
     end
 
     add_index :telemetry_readings,
-              [:organization_machine_id, :parameter_name, :recorded_at],
-              name: "index_telemetry_on_machine_param_time"
+      [:organization_machine_id, :parameter_name, :recorded_at],
+      name: "index_telemetry_on_machine_param_time"
   end
 end

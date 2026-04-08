@@ -1,7 +1,7 @@
 class CreateCurriculumModules < ActiveRecord::Migration[8.1]
   def change
     create_table :curriculum_modules do |t|
-      t.references :curriculum, null: false, foreign_key: { to_table: :curricula }
+      t.references :curriculum, null: false, foreign_key: {to_table: :curricula}
       t.string :title, null: false
       t.integer :position, null: false
       t.string :module_type, null: false  # content | quiz

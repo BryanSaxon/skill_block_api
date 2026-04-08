@@ -34,8 +34,8 @@ class CurriculumPolicy < ApplicationPolicy
         scope.where(organization_id: user.organization_id)
       else
         scope.joins(:training_assignments)
-             .where(training_assignments: { user_id: user.id })
-             .where(status: "published")
+          .where(training_assignments: {user_id: user.id})
+          .where(status: "published")
       end
     end
   end

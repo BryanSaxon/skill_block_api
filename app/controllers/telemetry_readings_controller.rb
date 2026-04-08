@@ -10,9 +10,9 @@ class TelemetryReadingsController < ApplicationController
 
     limit = [[params.fetch(:limit, 150).to_i, 1].max, 500].min
     readings = policy_scope(TelemetryReading)
-                 .where(organization_machine: @machine)
-                 .recent_first
-                 .limit(limit)
+      .where(organization_machine: @machine)
+      .recent_first
+      .limit(limit)
 
     readings = readings.for_parameter(params[:parameter]) if params[:parameter].present?
 

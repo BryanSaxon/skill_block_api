@@ -27,7 +27,7 @@ class TrainingAssignmentPolicy < ApplicationPolicy
       if admin_org_user?
         scope.all
       elsif user.admin? || user.manager?
-        scope.joins(:user).where(users: { organization_id: user.organization_id })
+        scope.joins(:user).where(users: {organization_id: user.organization_id})
       else
         scope.where(user_id: user.id)
       end

@@ -11,11 +11,11 @@ class AlertsController < ApplicationController
     alerts = policy_scope(Alert).where(organization_machine: @machine)
 
     alerts = case params[:status]
-    when "active"       then alerts.where(status: :active)
+    when "active" then alerts.where(status: :active)
     when "acknowledged" then alerts.where(status: :acknowledged)
-    when "resolved"     then alerts.where(status: :resolved)
-    when "open"         then alerts.open
-    else                     alerts.open   # default to open
+    when "resolved" then alerts.where(status: :resolved)
+    when "open" then alerts.open
+    else alerts.open   # default to open
     end
 
     alerts = alerts.severity_first
@@ -49,14 +49,14 @@ class AlertsController < ApplicationController
           user: current_user.manager,
           notification_type: "alert_acknowledged",
           message: "#{current_user.first_name} #{current_user.last_name} acknowledged a #{@alert.severity} alert on #{@machine.nickname}.",
-          navigation_target: { route: "/machines/#{@machine.id}/alerts/#{@alert.id}" }
+          navigation_target: {route: "/machines/#{@machine.id}/alerts/#{@alert.id}"}
         )
         UserChannel.broadcast_notification(notif)
       end
 
       render json: AlertSerializer.new(@alert.reload).serializable_hash
     else
-      render json: { errors: ["Alert is already resolved"] }, status: :unprocessable_content
+      render json: {errors: ["Alert is already resolved"]}, status: :unprocessable_content
     end
   end
 

@@ -24,10 +24,10 @@ class AlertPolicy < ApplicationPolicy
       if admin_org_user?
         scope.all
       elsif user.admin? || user.manager?
-        scope.joins(:organization_machine).where(organization_machines: { organization_id: user.organization_id })
+        scope.joins(:organization_machine).where(organization_machines: {organization_id: user.organization_id})
       else
         scope.joins(organization_machine: :user_organization_machines)
-             .where(user_organization_machines: { user_id: user.id })
+          .where(user_organization_machines: {user_id: user.id})
       end
     end
   end
@@ -46,7 +46,7 @@ class AlertPolicy < ApplicationPolicy
 
   def assigned_operator?
     user.operator? && record.organization_machine
-                            .user_organization_machines
-                            .exists?(user_id: user.id)
+      .user_organization_machines
+      .exists?(user_id: user.id)
   end
 end

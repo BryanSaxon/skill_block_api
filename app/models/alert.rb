@@ -2,8 +2,8 @@ class Alert < ApplicationRecord
   belongs_to :organization_machine
   belongs_to :resolved_by, class_name: "User", optional: true
 
-  enum :severity, { warning: "warning", critical: "critical" }, validate: true
-  enum :status, { active: "active", acknowledged: "acknowledged", resolved: "resolved" }, validate: true
+  enum :severity, {warning: "warning", critical: "critical"}, validate: true
+  enum :status, {active: "active", acknowledged: "acknowledged", resolved: "resolved"}, validate: true
 
   validates :parameter_name, presence: true
   validates :triggered_value, presence: true

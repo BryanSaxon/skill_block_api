@@ -9,7 +9,7 @@ class CreateAlerts < ActiveRecord::Migration[8.1]
       t.string :status, null: false             # active | acknowledged | resolved
       t.datetime :triggered_at, null: false
       t.datetime :resolved_at
-      t.references :resolved_by, foreign_key: { to_table: :users }
+      t.references :resolved_by, foreign_key: {to_table: :users}
       t.text :acknowledgment_note
 
       t.timestamps

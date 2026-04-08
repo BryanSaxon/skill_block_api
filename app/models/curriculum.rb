@@ -6,7 +6,7 @@ class Curriculum < ApplicationRecord
   has_many :curriculum_modules, -> { order(:position) }, dependent: :destroy
   has_many :training_assignments, dependent: :destroy
 
-  enum :role_level, { entry: "entry", experienced: "experienced", lead: "lead" }, validate: true
+  enum :role_level, {entry: "entry", experienced: "experienced", lead: "lead"}, validate: true
   enum :status, {
     generating: "generating",
     draft: "draft",

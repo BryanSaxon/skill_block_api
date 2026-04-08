@@ -40,14 +40,14 @@ class SimulatorIngestController < ApplicationController
     fault_type = params[:fault_type]
 
     unless %w[warning critical].include?(fault_type)
-      render json: { error: "Invalid fault_type" }, status: :unprocessable_content
+      render json: {error: "Invalid fault_type"}, status: :unprocessable_content
       return
     end
 
     # Find the motor_temperature parameter for threshold values
     param = machine.machine_parameters.find_by(name: "motor_temperature")
-    threshold = fault_type == "critical" ? param&.critical_threshold : param&.warning_threshold
-    triggered_value = fault_type == "critical" ? 108.0 : 100.0
+    threshold = (fault_type == "critical") ? param&.critical_threshold : param&.warning_threshold
+    triggered_value = (fault_type == "critical") ? 108.0 : 100.0
 
     # Avoid duplicate active alerts for same parameter
     unless machine.alerts.open.where(parameter_name: "motor_temperature").exists?
@@ -94,7 +94,7 @@ class SimulatorIngestController < ApplicationController
     expected = ENV.fetch("SIMULATOR_API_KEY", "")
 
     if expected.blank? || !ActiveSupport::SecurityUtils.secure_compare(key, expected)
-      render json: { error: "Unauthorized" }, status: :unauthorized
+      render json: {error: "Unauthorized"}, status: :unauthorized
     end
   end
 
@@ -108,7 +108,7 @@ class SimulatorIngestController < ApplicationController
       next unless p
       val = r[:value].to_f
       has_critical = true if p.critical_threshold && val >= p.critical_threshold.to_f
-      has_warning  = true if p.warning_threshold  && val >= p.warning_threshold.to_f
+      has_warning = true if p.warning_threshold && val >= p.warning_threshold.to_f
     end
 
     if has_critical then "critical"
@@ -123,8 +123,8 @@ class SimulatorIngestController < ApplicationController
       notif = Notification.create!(
         user: operator,
         notification_type: "alert_fired",
-        message: "#{alert.severity.capitalize} alert on #{machine.nickname}: #{alert.parameter_name.tr('_', ' ')} is #{alert.triggered_value.to_f.round(1)}.",
-        navigation_target: { route: "/machines/#{machine.id}/alerts/#{alert.id}" }
+        message: "#{alert.severity.capitalize} alert on #{machine.nickname}: #{alert.parameter_name.tr("_", " ")} is #{alert.triggered_value.to_f.round(1)}.",
+        navigation_target: {route: "/machines/#{machine.id}/alerts/#{alert.id}"}
       )
       UserChannel.broadcast_notification(notif)
     end
