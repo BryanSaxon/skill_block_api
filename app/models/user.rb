@@ -32,6 +32,10 @@ class User < ApplicationRecord
     organization&.admin?
   end
 
+  def full_name
+    "#{first_name} #{last_name}"
+  end
+
   private
 
   def manager_assignment_valid?

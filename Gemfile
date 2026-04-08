@@ -4,6 +4,7 @@ gem "aasm"
 gem "active_storage_validations"
 gem "anthropic"
 gem "bcrypt", "~> 3.1.7"
+gem "pdf-reader", "~> 2.12"
 gem "bootsnap", require: false
 gem "image_processing", "~> 1.2"
 gem "jsonapi-serializer"

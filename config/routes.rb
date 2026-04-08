@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   resources :machines, only: %i[index show create update destroy]
   resources :organizations, only: %i[index show create update destroy] do
     resources :invitations, only: %i[index create destroy]
+    resources :documents, only: %i[index show create destroy]
     resources :organization_machines, only: %i[index show create update destroy] do
       resources :user_organization_machines, only: %i[index create destroy]
       resources :telemetry_readings, only: %i[index], path: "telemetry"
@@ -21,6 +22,30 @@ Rails.application.routes.draw do
     end
   end
   resources :users, only: %i[index show update destroy]
+
+  resources :training_assignments, only: %i[index show create update destroy] do
+    collection { post :bulk }
+    resources :curriculum_modules, only: [], path: "modules" do
+      member do
+        post :start
+        post :submit_answer
+        post :complete
+      end
+    end
+  end
+
+  resources :curricula, only: %i[index show update] do
+    member do
+      post :publish
+    end
+    resources :curriculum_modules, only: [], path: "modules" do
+      member { patch :update, to: "curriculum_module_edits#update" }
+    end
+    collection { post :generate }
+  end
+
+  get "manager/dashboard", to: "manager_dashboard#show"
+  get "manager/compliance_report", to: "curricula#compliance_report"
 
   # ── Simulator ingest (X-Simulator-Key auth) ───────────────────────────────
   namespace :simulator do
