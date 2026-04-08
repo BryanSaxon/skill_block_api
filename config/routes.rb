@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 
-  resource :session, only: %i[create destroy]
+  resource :session, only: %i[create show destroy]
   resources :passwords, param: :token, only: %i[create update]
   get "registrations/:token", to: "registrations#show", as: :registration
   post "registrations/:token", to: "registrations#create"

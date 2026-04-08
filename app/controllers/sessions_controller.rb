@@ -14,6 +14,11 @@ class SessionsController < ApplicationController
     end
   end
 
+  # GET /session — returns the current authenticated user (used on app startup to restore role)
+  def show
+    render json: {user: UserSerializer.new(current_user).serializable_hash}
+  end
+
   def destroy
     terminate_session
     head :no_content
