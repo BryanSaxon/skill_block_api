@@ -21,7 +21,7 @@ class RegistrationsController < ApplicationController
     )
 
     if user.save
-      @invitation.update!(accepted_at: Time.current)
+      @invitation.update_column(:accepted_at, Time.current)
       start_new_session_for(user)
       token = JsonWebToken.encode(sub: Current.session.id)
       render json: {token: token, user: UserSerializer.new(user).serializable_hash}, status: :created

@@ -24,9 +24,9 @@ Rails.application.routes.draw do
 
   # ── Simulator ingest (X-Simulator-Key auth) ───────────────────────────────
   namespace :simulator do
-    post :telemetry,      to: "/simulator_ingest#telemetry"
-    post :fault,          to: "/simulator_ingest#fault"
+    post :telemetry, to: "/simulator_ingest#telemetry"
+    post :fault, to: "/simulator_ingest#fault"
     post :resolve_alerts, to: "/simulator_ingest#resolve_alerts"
-    post :reset,          to: "/simulator_ingest#reset"
+    post :reset, to: "/simulator_ingest#reset"
   end
 end
